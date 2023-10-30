@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trabalho 2</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        button {
+            padding: 12px 20px;
+            margin: 4px; /* Adjust the margin for spacing between buttons */
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 16px; /* Larger font size */
+            font-weight: bold; /* Bolder text */
+            border-radius: 10px; /* Rounded corners */
+        }
+        /* Style the ON button */
+        .on-button {
+            background-color: green;
+            color: white;
+        }
+        /* Style the OFF button */
+        .off-button {
+            background-color: red;
+            color: white;
+        }
+        div {
+            padding: 10px;
+        }
+        /* Style the "Blue Led" text */
+        .label-text {
+            font-size: 20px; /* Larger font size */
+            font-weight: bold; /* Bolder text */
+        }
+        /* Style the "STATUS" and "CONTROLS" text */
+        .title-text {
+            font-size: 24px; /* Larger font size for STATUS */
+            font-weight: bold; /* Bolder text */
+        }
+        /* Style additional text */
+        .additional-text {
+            font-size: 18px; /* Larger font size for additional text */
+        }
+        /* Add CSS styles for better appearance */
+        .column {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div style="display: flex;">
+        <!-- Left Column -->
+        <div class="column">
+            <a href="https://www.ua.pt" target="_blank">
+                <img src="http://bestaveiro.web.ua.pt/images/university/ua_logo.png" alt="uaLogo" width="350" height="150">
+            </a>
+        </div>
+
+        <!-- Middle Column -->
+        <div class="column">
+            <p class="title-text">CONTROLS</p> <!-- Added "CONTROLS" text -->
+            <p class="label-text">Blue Led</p>
+            <div>
+                <button class="on-button">ON</button>
+                <button class="off-button">OFF</button>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="column">
+            <p class="title-text">STATUS</p>
+            <p class="additional-text">Blue Led is </p>
+            <p class="additional-text">More details can be added here.</p>
+        </div>
+    </div>
+    <div class="column"> <b>Developed by: Tiago Marques, 98459</b> </div>
+
+    <script>
+        function turnOn() {
+            // Change the window.location when the "ON" button is clicked
+            window.location.href = '/GPI0=0';
+        }
+
+        function turnOff() {
+            // Change the window.location when the "OFF" button is clicked
+            window.location.href = '/GPI0=1';
+        }
+    </script>
+</body>
+</html>

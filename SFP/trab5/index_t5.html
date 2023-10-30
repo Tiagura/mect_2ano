@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>GUI</title>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        button {
+            padding: 12px 20px;
+            margin: -16px 4px; /* Adjust the margin for spacing between buttons */
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 16px; /* Larger font size */
+            font-weight: bold; /* Bolder text */
+            border-radius: 10px; /* Rounded corners */
+        }
+        /* Style the ON button */
+        .on-button {
+            background-color: green;
+            color: white;
+        }
+        /* Style the OFF button */
+        .off-button {
+            background-color: red;
+            color: white;
+        }
+        div {
+            padding: 10px;
+        }
+        /* Style the "Blue Led" text */
+        .label-text {
+            font-size: 20px; /* Slightly smaller font size */
+            font-weight: bold; /* Bolder text */
+        }
+        /* Style the "STATUS" and "CONTROLS" text */
+        .title-text {
+            font-size: 24px; /* Larger font size for STATUS */
+            font-weight: bold; /* Bolder text */
+        }
+        /* Style additional text */
+        .additional-text {
+            font-size: 20px; /* Larger font size for additional text */
+            font-weight: bold; /* Bolder text */
+        }
+        /* Add CSS styles for better appearance */
+        .column {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .credits {
+            font-size: 20px; /* Larger font size for additional text */
+            font-weight: bold; /* Bolder text */
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script>
+            function turnOn() {
+            // Make an AJAX request to the PHP script for turning ON
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "update.php?status=0", true);
+            xhr.send();
+        }
+
+        function turnOff() {
+            // Make an AJAX request to the PHP script for turning OFF
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "update.php?status=1", true);
+            xhr.send();
+        }
+    </script>
+    <script>
+        function refreshButtonStates() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (this.readyState == 4 && this.status == 200) {
+            var response = JSON.parse(this.responseText);
+            // Update button states
+            // XO is gpio0, if it is 1 want off text and red background, else on text and green background
+            // X1 is gpio2, if it is 1 want off text and red background, else on text and green background
+            // X2 is gpio4, if it is 1 want off text and red background, else on text and green background
+            // X3 is analog0,
+
+            document.getElementById('gpio2Status').innerHTML = response.X1 == 0 ? "ON" : "OFF"
+            document.getElementById('gpio2Status').style.color = response.X1 == 0 ? 'green' : 'red'
+            document.getElementById('gpio0Status').innerHTML = response.X0 == 0 ? "ON" : "OFF"
+            document.getElementById('gpio0Status').style.color = response.X0 == 0 ? 'green' : 'red'
+            document.getElementById('gpio4Status').innerHTML = response.X2 == 0 ? "ON" : "OFF"
+            document.getElementById('gpio4Status').style.color = response.X2 == 0 ? 'green' : 'red'
+            document.getElementById('a0Value').innerHTML = response.X3;
+            }
+        };
+        xhttp.open("GET", "/getData.php", true);
+        xhttp.send();
+        }
+        
+        // Periodically refresh button states every 500ms
+        setInterval(refreshButtonStates, 500);
+    </script>
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+    <script>
+        function createChart(graphData) {
+            // Extract the y values from the data
+            const yValues = graphData.map(point => point.y);
+
+            // Create a new data array with x values from 1 to the length of the data
+            const newDataArray = Array.from({ length: 100 }, (_, index) => ({
+                x: index ,//+ 1,
+                y: yValues[index]
+            }));
+
+            console.log(newDataArray);
+            var chart = new CanvasJS.Chart("chartContainer",{
+                title :{
+                    text: "Foto Values"
+                },
+                axisY: {						
+                    title: "Values"
+                },
+                axisX: { // Add or update this part
+                minimum: 0,
+                maximum: 100
+            },
+                data: [{
+                    type: "line",
+                    dataPoints : newDataArray
+                }]
+            });
+
+            chart.render();
+        }
+
+        function fetchDataForGraph() {
+            fetch("/getFotoValues.php")
+                .then(response => response.json())
+                .then(graphData => {
+                    const parsedData = graphData.map(JSON.parse);
+                    const x3Values = parsedData.map(entry => parseInt(entry.X3));
+
+                    console.log(x3Values)
+                    // create an array here with format [{x: Id, y: X3}]
+                    // create an array with format [{x: Id, y: X3}]
+                    const graphArray = x3Values.map(value => ({ y: value }));
+
+                    // Pass graphArray to createChart function
+                    const last100Data = graphArray.slice(-100);
+                    createChart(last100Data);
+                })
+                .catch(error => console.error('Error fetching data:', error));
+
+            
+        }
+        setInterval(fetchDataForGraph, 1000);
+    </script>
+</head>
+<body>
+    <div style="display: flex;" align="center">
+        <!-- Left Column -->
+        <div class="column">
+            <a href="https://www.ua.pt" target="_blank">
+                <img src="http://bestaveiro.web.ua.pt/images/university/ua_logo.png" alt="uaLogo" width="350" height="150">
+            </a>
+        </div>
+
+        <!-- Middle Column -->
+        <div class="column"> <!-- Added class "middle-column" -->
+            <p class="title-text">CONTROLS</p>
+            <p class="label-text">BLUE LED</p> <!-- Adjusted font size -->
+            <div>
+                <button class="on-button" onclick="turnOn()" >ON</button>
+                <button class="off-button" onclick="turnOff()">OFF</button>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="column">
+            <p class="title-text">STATUS</p>
+            <p class="additional-text">GPIO0: <span id="gpio0Status" style="color: red"> OFF </span> </p>
+            <p class="additional-text">GPIO2: <span id="gpio2Status" style="color: red"> OFF </span> </p>
+            <p class="additional-text">GPIO4: <span id="gpio4Status" style="color: red"> OFF </span> </p>
+            <p class="additional-text">A0: <span id="a0Value" > 0 </span> </p>
+        </div>
+    </div>
+    <div id="chartContainer" style="height: 300px; width: 90%;">
+        <!-- Chart will be displayed here -->
+    </div>
+    <br>
+    <div class="credits"> <b>Developed by: Tiago Marques, 98459</b> </div>
+</body>
+</html>
