@@ -1,0 +1,1 @@
+docker run -it -d --name mos1 -p 1883:1883 -v ~/Desktop/mect_2ano/SFP/trab6/mosquitto.conf:/mosquitto/config/mosquitto.conf eclipse-mosquitto:2
